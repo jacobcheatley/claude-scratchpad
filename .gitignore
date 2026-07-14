@@ -1,0 +1,22 @@
+# Session worktrees (tracked via their own branches, not on main)
+.claude/worktrees/
+
+# Cloned third-party repos inside worktrees
+external/
+
+# Environments & dependencies
+.venv/
+venv/
+node_modules/
+__pycache__/
+
+# Caches & logs
+.cache/
+*.log
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# Editor/OS noise
+.DS_Store
+*.swp
