@@ -25,7 +25,7 @@ while IFS= read -r wt; do
     mkdir -p "$wt/work"
     entries="$(jq --arg p "$repo_name/.claude/worktrees/$slug/work" --arg n "$slug" \
         '. + [{path: $p, name: $n}]' <<<"$entries")"
-done < <(git -C "$main_root" worktree list --porcelain | awk '/^worktree /{print $2}')
+done < <(git -C "$main_root" worktree list --porcelain | sed -n 's/^worktree //p')
 entries="$(jq 'sort_by(.name)' <<<"$entries")"
 
 if [[ -f "$ws_file" ]]; then
