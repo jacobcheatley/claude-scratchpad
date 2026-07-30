@@ -49,7 +49,7 @@ Results that are expensive to reproduce (slow queries, API calls, fleet fetches)
 
 ## 7. Cleanup — explicit only
 
-Never prune automatically. When the user asks for cleanup, run `scripts/prune-worktrees.sh`. It removes worktree directories but always keeps branches, so content stays recoverable. Worktrees locked by a live session are skipped unless run with `FORCE=1`.
+Never prune automatically. When the user asks for cleanup, run `scripts/prune-worktrees.sh`. Pass slugs to remove specific worktrees, or `--older-than <age>` (e.g. `7d`, `2w`, `12h`) to remove all whose last commit is older. It removes worktree directories but always keeps branches, so content stays recoverable. Worktrees locked by a live session are skipped unless run with `FORCE=1`.
 
 ## 8. VSCode workspace — auto-synced
 

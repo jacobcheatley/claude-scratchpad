@@ -53,7 +53,7 @@ If the session premise changes substantially mid-session, ask the user: rename t
 
 ### 6. Cleanup
 
-Never automatic. `scripts/prune-worktrees.sh` runs only on explicit request: lists worktrees with age, removes selected ones, always keeps branches (content stays recoverable).
+Never automatic. `scripts/prune-worktrees.sh` runs only on explicit request: lists worktrees with age, removes selected ones (by slug, or in bulk via `--older-than <age>`, e.g. `7d`/`2w`), always keeps branches (content stays recoverable).
 
 ## Enforcement
 
