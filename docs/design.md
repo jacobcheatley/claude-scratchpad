@@ -61,7 +61,7 @@ Never automatic. `scripts/prune-worktrees.sh` runs only on explicit request: lis
 
 ## VSCode workspace sync
 
-`scripts/sync-workspace.sh` (bash + jq) mirrors session worktrees into a multi-root workspace file at `../claude-scratchpad.code-workspace`: one folder entry per worktree `work/` dir, plus a seeded root folder. Managed-folders-only semantics — it rewrites only entries whose path matches `claude-scratchpad/.claude/worktrees/*/work`, preserving user-added folders and settings. Triggered by a SessionStart hook and by `prune-worktrees.sh`; unparseable (non-plain-JSON) workspace files are left untouched with an error. The committed `work/.gitkeep` on main gives new worktrees their `work/` dir at creation.
+`scripts/sync-workspace.sh` (bash + jq) mirrors session worktrees into a multi-root workspace file at `../claude-scratchpad.code-workspace`: one folder entry per worktree `work/` dir, plus a seeded root folder. Managed-folders-only semantics — it rewrites only entries whose path matches `claude-scratchpad/.claude/worktrees/*/work`, preserving user-added folders and the workspace file's own `settings` block. Triggered by a SessionStart hook and after removal runs of `prune-worktrees.sh`; unparseable (non-plain-JSON) workspace files are left untouched with an error. The committed `work/.gitkeep` on main gives new worktrees their `work/` dir at creation. Worktrees created before this landed don't carry the hook — their entries refresh on the next main-checkout session.
 
 ## Accepted residual risks
 

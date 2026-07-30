@@ -14,13 +14,14 @@ set -euo pipefail
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 main_root="$(dirname "$(git -C "$script_dir" rev-parse --path-format=absolute --git-common-dir)")"
 repo_name="$(basename "$main_root")"
-ws_file="$(dirname "$main_root")/claude-scratchpad.code-workspace"
+ws_file="$(dirname "$main_root")/$repo_name.code-workspace"
 
 # Managed entries: one per session worktree, path relative to the workspace
 # file's directory, sorted by slug for stable ordering.
 entries="[]"
 while IFS= read -r wt; do
     [[ "$wt" == "$main_root/.claude/worktrees/"* ]] || continue
+    [[ -d "$wt" ]] || continue
     slug="$(basename "$wt")"
     mkdir -p "$wt/work"
     entries="$(jq --arg p "$repo_name/.claude/worktrees/$slug/work" --arg n "$slug" \
@@ -34,9 +35,10 @@ if [[ -f "$ws_file" ]]; then
         exit 1
     fi
     new="$(jq --argjson managed "$entries" --arg prefix "$repo_name/.claude/worktrees/" '
-        .folders = ((.folders // []) | map(select(
-            (((.path? // "") | startswith($prefix) and endswith("/work"))) | not
-        )) + $managed)
+        def is_managed: (.path? // null) as $p
+          | ($p|type) == "string" and ($p|startswith($prefix))
+            and ($p|ltrimstr($prefix)|test("^[^/]+/work$"));
+        .folders = ((.folders // []) | map(select(is_managed | not)) + $managed)
     ' "$ws_file")"
 else
     new="$(jq -n --argjson managed "$entries" --arg root "$repo_name" '
@@ -50,5 +52,7 @@ if [[ -f "$ws_file" ]] && diff -q <(printf '%s\n' "$new") "$ws_file" >/dev/null 
 fi
 
 tmp="$(mktemp "$ws_file.XXXXXX")"
+trap 'rm -f "$tmp"' EXIT
 printf '%s\n' "$new" >"$tmp"
+chmod 644 "$tmp"
 mv "$tmp" "$ws_file"
