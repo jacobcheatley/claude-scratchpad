@@ -49,3 +49,6 @@ for slug in "$@"; do
     fi
     echo "removed worktree $path (branch kept)"
 done
+
+# Keep the VSCode workspace file in step with removals.
+"$repo_root/scripts/sync-workspace.sh" || true
