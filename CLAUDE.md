@@ -17,11 +17,13 @@ Worktrees use Claude Code's native convention: directory `.claude/worktrees/<slu
 
 ## 2. All session files go in `work/` inside the worktree
 
-Create every session file under `<worktree>/work/` — never at the worktree root, which holds infra checked out from main (CLAUDE.md, docs/, scripts/, .gitignore). This keeps session output dumpable as one folder: `cp -r work/ <dest>`.
+Create every session file under `<worktree>/work/` — never at the worktree root, which holds infra checked out from main (CLAUDE.md, docs/, scripts/, .gitignore, and an empty work/ scaffold). This keeps session output dumpable as one folder: `cp -r work/ <dest>`.
 
 Never write to the repo root either, except to maintain infra (`CLAUDE.md`, `README.md`, `.gitignore`, `scripts/`, `docs/`) — and infra edits happen only on the main checkout, never via a worktree's copy.
 
 Hard-enforced: a PreToolUse hook (`scripts/enforce-work-dir.sh`, wired in `.claude/settings.json`) blocks Write/Edit/NotebookEdit outside `work/` inside worktrees, and blocks `work/` at the repo root. If it blocks you, you're writing to the wrong place — don't work around it via Bash.
+
+Root `work/` exists on main as an empty committed scaffold (`work/.gitkeep`) so new worktrees ship with `work/` from birth; it stays write-blocked — session files never go there.
 
 ## 3. Commit at milestones
 
@@ -48,3 +50,7 @@ Results that are expensive to reproduce (slow queries, API calls, fleet fetches)
 ## 7. Cleanup — explicit only
 
 Never prune automatically. When the user asks for cleanup, run `scripts/prune-worktrees.sh`. It removes worktree directories but always keeps branches, so content stays recoverable. Worktrees locked by a live session are skipped unless run with `FORCE=1`.
+
+## 8. VSCode workspace — auto-synced
+
+`scripts/sync-workspace.sh` keeps `../claude-scratchpad.code-workspace` (sibling of the repo, not committed) mapped to all worktree `work/` dirs — one workspace folder per worktree. It runs on SessionStart and at the end of `prune-worktrees.sh`; manual runs are safe anytime. It only manages the worktree `work/` entries: the root folder, any hand-added folders, and `settings` are left alone. The file must stay plain JSON (no comments) or the script refuses to touch it.

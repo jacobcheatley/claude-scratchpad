@@ -59,6 +59,10 @@ Never automatic. `scripts/prune-worktrees.sh` runs only on explicit request: lis
 
 `scripts/enforce-work-dir.sh` (PreToolUse hook in `.claude/settings.json`, matcher `Write|Edit|NotebookEdit`) blocks writes inside worktrees outside `work/` and `external/`, and blocks `work/` at the repo root. Remaining gap: Bash-mediated writes (redirects, `cp`) aren't intercepted — CLAUDE.md instructs not to bypass.
 
+## VSCode workspace sync
+
+`scripts/sync-workspace.sh` (bash + jq) mirrors session worktrees into a multi-root workspace file at `../claude-scratchpad.code-workspace`: one folder entry per worktree `work/` dir, plus a seeded root folder. Managed-folders-only semantics — it rewrites only entries whose path matches `claude-scratchpad/.claude/worktrees/*/work`, preserving user-added folders and settings. Triggered by a SessionStart hook and by `prune-worktrees.sh`; unparseable (non-plain-JSON) workspace files are left untouched with an error. The committed `work/.gitkeep` on main gives new worktrees their `work/` dir at creation.
+
 ## Accepted residual risks
 
 - Branches accumulate indefinitely — by design; they are the history.
