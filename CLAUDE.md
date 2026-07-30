@@ -36,6 +36,15 @@ Commit (on the worktree's branch) when a deliverable is produced, an investigati
 
 Premise changes substantially mid-session → ask the user: rename the worktree (branch + directory) or start a new one.
 
-## 6. Cleanup — explicit only
+## 6. Working memory — dump, don't rerun
+
+Results that are expensive to reproduce (slow queries, API calls, fleet fetches) or will be referenced more than once: save to `work/data/` as CSV/JSON at first run, then read the file instead of rerunning.
+
+- Filename carries provenance: `<what>-<YYYYMMDD>[-HHMM].csv` (e.g. `events-by-site-20260715.csv`).
+- Cheap one-shot output stays in context — don't dump `ls`.
+- Rerun only when live state matters (verifying a change, freshness required) — a cached snapshot answers point-in-time questions.
+- Data files commit with normal milestone commits. The 5 MB junk rule still applies.
+
+## 7. Cleanup — explicit only
 
 Never prune automatically. When the user asks for cleanup, run `scripts/prune-worktrees.sh`. It removes worktree directories but always keeps branches, so content stays recoverable. Worktrees locked by a live session are skipped unless run with `FORCE=1`.
