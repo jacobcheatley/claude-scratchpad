@@ -17,7 +17,8 @@ claude-scratchpad/
 ├── CLAUDE.md                  # workflow rules Claude follows each session
 ├── scripts/
 │   ├── enforce-work-dir.sh    # hook: blocks writes outside work/
-│   └── prune-worktrees.sh     # explicit cleanup (keeps branches)
+│   ├── prune-worktrees.sh     # explicit cleanup (keeps branches)
+│   └── dump-work.sh           # export a worktree's work/ as a shareable archive
 ├── docs/design.md             # full design
 └── .claude/worktrees/         # gitignored — one worktree per topic
     └── fix-csv-parser/        # branch: worktree-fix-csv-parser
@@ -74,6 +75,16 @@ Want the output somewhere else? It's one folder:
 ```sh
 cp -r .claude/worktrees/compare-json-parsers/work/ ~/some-project/benchmarks/
 ```
+
+Sharing it with someone? `dump-work.sh` packages a worktree's `work/` as an archive in `dumps/`:
+
+```sh
+scripts/dump-work.sh compare-json-parsers             # dumps/compare-json-parsers-work-<date>.zip
+scripts/dump-work.sh compare-json-parsers --history   # unzips to a git repo of just work/, full history
+scripts/dump-work.sh compare-json-parsers --all       # include gitignored files (data, external/, ...)
+```
+
+Default scope is the working tree minus gitignored files, so uncommitted session output is included. `--tgz` for tar.gz, `-o <path>` to write elsewhere; the slug is inferred when run from inside a worktree, and a pruned worktree is archived from its surviving branch. Asking Claude to "package this up to share" triggers the same script via the `dump-work` skill.
 
 Done with the directory? Prune it — the branch (and therefore the content) survives:
 

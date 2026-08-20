@@ -17,7 +17,9 @@ claude-scratchpad/         # repo root, branch: main — stays pristine
 ├── docs/                  # design docs
 ├── scripts/
 │   ├── enforce-work-dir.sh  # PreToolUse hook: work/ containment
-│   └── prune-worktrees.sh   # explicit-call cleanup
+│   ├── prune-worktrees.sh   # explicit-call cleanup
+│   └── dump-work.sh         # export a worktree's work/ as a shareable archive
+├── dumps/                 # gitignored; archives from dump-work.sh
 └── .claude/worktrees/     # gitignored; one worktree per topic
     └── <topic-slug>/      # branch worktree-<topic-slug>, forked from main
 ```
@@ -54,6 +56,10 @@ If the session premise changes substantially mid-session, ask the user: rename t
 ### 6. Cleanup
 
 Never automatic. `scripts/prune-worktrees.sh` runs only on explicit request: lists worktrees with age, removes selected ones (by slug, or in bulk via `--older-than <age>`, e.g. `7d`/`2w`), always keeps branches (content stays recoverable).
+
+## Sharing outputs
+
+`scripts/dump-work.sh` exports one worktree's `work/` dir as a shareable archive in `dumps/` (gitignored), named `<slug>-work-<YYYYMMDD>[-HHMM].zip` — the slug argument is inferred when run from inside a worktree. Default scope is the working tree minus gitignored files (tracked + untracked-unignored, so uncommitted session output isn't dropped); `--all` adds gitignored files, `--tgz` switches format, `-o` overrides the path. `--history` embeds a real git repo produced by `git subtree split --prefix=work` in a temp clone — the recipient unzips a browsable repo whose root is `work/` with only its commits, infra files absent, uncommitted session files riding along untracked. If the worktree was pruned, tracked files are archived from the surviving branch. The `dump-work` project skill (`.claude/skills/dump-work/`) maps "package this up to share"-style requests onto the script.
 
 ## Enforcement
 

@@ -51,6 +51,10 @@ Results that are expensive to reproduce (slow queries, API calls, fleet fetches)
 
 Never prune automatically. When the user asks for cleanup, run `scripts/prune-worktrees.sh`. Pass slugs to remove specific worktrees, or `--older-than <age>` (e.g. `7d`, `2w`, `12h`) to remove all whose last commit is older. It removes worktree directories but always keeps branches, so content stays recoverable. Worktrees locked by a live session are skipped unless run with `FORCE=1`.
 
-## 8. VSCode workspace — auto-synced
+## 8. Sharing outputs — dump-work.sh
+
+When the user wants a worktree's outputs packaged for someone else ("dump this", "share the investigation", "zip up the results"), use the `dump-work` skill / `scripts/dump-work.sh` — don't hand-roll `zip`/`tar`. It archives one worktree's `work/` to `dumps/<slug>-work-<date>.zip` at the repo root (gitignored). Default scope: working tree minus gitignored files. Flags: `--history` (embed a work/-only git repo the recipient can browse), `--all` (include gitignored files), `--tgz`, `-o <path>`. Slug is inferred when run from inside the worktree. Works after pruning too (archives from the branch).
+
+## 9. VSCode workspace — auto-synced
 
 `scripts/sync-workspace.sh` keeps `../claude-scratchpad.code-workspace` (sibling of the repo, not committed) mapped to all worktree `work/` dirs — one workspace folder per worktree. It runs on SessionStart and after removal runs of `prune-worktrees.sh`; manual runs are safe anytime. It only manages the worktree `work/` entries: the root folder, any hand-added folders, and the workspace file's own `settings` block are left alone. The file must stay plain JSON (no comments) or the script refuses to touch it. Worktrees created before this landed don't carry the hook — their entries refresh on the next main-checkout session.

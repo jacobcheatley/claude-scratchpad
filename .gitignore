@@ -4,6 +4,9 @@
 # Cloned third-party repos inside worktrees
 external/
 
+# Archives produced by scripts/dump-work.sh
+dumps/
+
 # Environments & dependencies
 .venv/
 venv/
